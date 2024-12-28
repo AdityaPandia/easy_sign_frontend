@@ -19,7 +19,7 @@ const Signup = () => {
       setError(""); // Clear previous error
       setSuccess(""); // Clear previous success
       console.log("Attempting to sign up...");
-      await axios.post("http://13.60.196.243:3000/api/auth/register", { name, email, password });
+      await axios.post("http://13.60.196.243:5000/api/auth/register", { name, email, password });
       setSuccess("Signup successful! Redirecting to login...");
       setTimeout(() => navigate("/login"), 2000); // Redirect to login bfter 2 seconds
     } catch (err) {

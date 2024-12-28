@@ -34,7 +34,7 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchDocuments = async () => {
       try {
-        const response = await axios.get("http://13.60.196.243:3000/api/files/documents");
+        const response = await axios.get("http://13.60.196.243:5000/api/files/documents");
         const { unsigned, signed } = response.data;
         setUploadHistory(response.data); // General file list
         setUnsignedDocuments(unsigned); // Set unsigned files
@@ -69,7 +69,7 @@ const Dashboard = () => {
       setUploading(true);
       setError("");
 
-      const response = await axios.post("http://13.60.196.243:3000/api/files/upload", formData, {
+      const response = await axios.post("http://13.60.196.243:5000/api/files/upload", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
@@ -99,7 +99,7 @@ const Dashboard = () => {
       setSigning(true);
       setError("");
 
-      const response = await axios.post("http://13.60.196.243:3000/api/files/sign-pdf", {
+      const response = await axios.post("http://13.60.196.243:5000/api/files/sign-pdf", {
         fileId,
         signerName: signerNames[index],
       });
@@ -140,7 +140,7 @@ const Dashboard = () => {
     //   setSigning(true);
     //   setError("");
 
-    //   const response = await axios.post("http://13.60.196.243:3000/api/files/sign-pdf", {
+    //   const response = await axios.post("http://13.60.196.243:5000/api/files/sign-pdf", {
     //     fileId,
     //     signerName: signerNames[index],
     //   });
@@ -291,7 +291,7 @@ const Dashboard = () => {
                         <Button
                           variant="contained"
                           color="primary"
-                          href={`http://13.60.196.243:3000/uploads${item.signedFilePath.replace("/uploads", "")}`}
+                          href={`http://13.60.196.243:5000/uploads${item.signedFilePath.replace("/uploads", "")}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           download={item.fileName} // Enables file download
