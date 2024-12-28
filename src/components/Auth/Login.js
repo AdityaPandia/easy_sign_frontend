@@ -16,7 +16,7 @@
 //       setError(""); // Clear previous error
 //       setSuccess(""); // Clear previous success
 //       console.log("Attempting to log in...");
-//       const response = await axios.post("http://localhost:5000/api/auth/login", { email, password });
+//       const response = await axios.post("http://13.60.196.243:3000/api/auth/login", { email, password });
 //       console.log("Login successful:", response.data);
 //       setSuccess("Login successful!"); // Update success message
 //       // Handle token storage here (e.g., localStorage)
@@ -81,12 +81,12 @@ const Login = () => {
       setError(""); // Clear previous error
       setSuccess(""); // Clear previous success
       console.log("Attempting to log in...");
-      const response = await axios.post("http://localhost:5000/api/auth/login", { email, password });
+      const response = await axios.post("http://13.60.196.243:3000/api/auth/login", { email, password });
       console.log("Login successful:", response.data);
       setSuccess("Login successful!"); // Update success message
 
       // Handle token storage here (e.g., localStorage)
-      localStorage.setItem("token", response.data.token); // Store the token in localStorage or sessionStorage
+      localStorage.setItem("authToken", response.data.token); // Store the token in localStorage or sessionStorage
 
       // Navigate to the Dashboard after login
       console.log("calling dashboard");

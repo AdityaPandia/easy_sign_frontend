@@ -34,7 +34,7 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchDocuments = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/files/documents");
+        const response = await axios.get("http://13.60.196.243:3000/api/files/documents");
         const { unsigned, signed } = response.data;
         setUploadHistory(response.data); // General file list
         setUnsignedDocuments(unsigned); // Set unsigned files
@@ -69,7 +69,7 @@ const Dashboard = () => {
       setUploading(true);
       setError("");
 
-      const response = await axios.post("http://localhost:5000/api/files/upload", formData, {
+      const response = await axios.post("http://13.60.196.243:3000/api/files/upload", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
@@ -99,7 +99,7 @@ const Dashboard = () => {
       setSigning(true);
       setError("");
 
-      const response = await axios.post("http://localhost:5000/api/files/sign-pdf", {
+      const response = await axios.post("http://13.60.196.243:3000/api/files/sign-pdf", {
         fileId,
         signerName: signerNames[index],
       });
@@ -121,6 +121,47 @@ const Dashboard = () => {
       console.error("Signing failed:", err.message);
       setError("An error occurred while signing the PDF.");
     }
+  };
+
+
+
+  const handleDocxSign = async (fileId, index) => {
+    if (!signerNames[index]) {
+      setError("Signer name is required.");
+      return;
+    }
+    try {
+      // /uploads/1735105726686.docx
+    } catch (err) {
+
+    }
+
+    // try {
+    //   setSigning(true);
+    //   setError("");
+
+    //   const response = await axios.post("http://13.60.196.243:3000/api/files/sign-pdf", {
+    //     fileId,
+    //     signerName: signerNames[index],
+    //   });
+
+    //   const signedDocument = {
+    //     ...unsignedDocuments[index],
+    //     signerName: signerNames[index],
+    //     signedFilePath: response.data.signedFilePath,
+    //   };
+
+    //   // Update states for signed documents and remove from unsigned
+    //   setSignedDocuments((prev) => [signedDocument, ...prev]);
+    //   setUnsignedDocuments((prev) => prev.filter((_, i) => i !== index));
+    //   setSignerNames((prev) => prev.filter((_, i) => i !== index));
+    //   setSignedFileUrl(response.data.signedFilePath);
+    //   setSigning(false);
+    // } catch (err) {
+    //   setSigning(false);
+    //   console.error("Signing failed:", err.message);
+    //   setError("An error occurred while signing the PDF.");
+    // }
   };
 
   return (
@@ -170,11 +211,27 @@ const Dashboard = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
+
+
                   {unsignedDocuments.map((item, index) => (
                     <TableRow key={index}>
                       <TableCell>{item.fileName}</TableCell>
                       <TableCell>{item.size}</TableCell>
-                      <TableCell>{new Date(item.uploadedAt).toLocaleString()}</TableCell>
+                      {/* <TableCell>{new Date(item.uploadedAt).toLocaleString()}</TableCell> */}
+                      {/* <TableCell>{item.createdAt ? new Date(item.createdAt).toLocaleString() : "N/A"}</TableCell> */}
+                      <TableCell>
+                        {item.createdAt
+                          ? new Date(item.createdAt).toLocaleString("en-GB", {
+                            day: "2-digit",
+                            month: "2-digit",
+                            year: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            hour12: true,
+                          })
+                          : "N/A"}
+                      </TableCell>
+
                       <TableCell>
                         <TextField
                           label="Signer Name"
@@ -187,10 +244,14 @@ const Dashboard = () => {
                         <Button
                           variant="contained"
                           color="secondary"
-                          onClick={() => handlePdfSign(item.id, index)} // Pass fileId instead of fileName
+                          onClick={() =>
+                            item.fileName.endsWith(".docx")
+                              ? handleDocxSign(item.id, index)
+                              : handlePdfSign(item.id, index)
+                          }
                           disabled={signing}
                         >
-                          {signing ? "Signing..." : "Sign PDF"}
+                          {signing ? "Signing..." : item.fileName.endsWith(".docx") ? "Sign DOC" : "Sign PDF"}
                         </Button>
                       </TableCell>
                     </TableRow>
@@ -230,7 +291,7 @@ const Dashboard = () => {
                         <Button
                           variant="contained"
                           color="primary"
-                          href={`http://localhost:5000/uploads${item.signedFilePath.replace("/uploads", "")}`}
+                          href={`http://13.60.196.243:3000/uploads${item.signedFilePath.replace("/uploads", "")}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           download={item.fileName} // Enables file download
