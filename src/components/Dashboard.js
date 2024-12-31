@@ -32,7 +32,7 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchDocuments = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/files/documents");
+        const response = await axios.get("https://easy-sign-backend.vercel.app/api/files/documents");
         const { unsigned, signed } = response.data;
         setUploadHistory(response.data); // General file list
         setUnsignedDocuments(unsigned); // Set unsigned files
@@ -67,7 +67,7 @@ const Dashboard = () => {
       setUploading(true);
       setError("");
 
-      const response = await axios.post("http://localhost:5000/api/files/upload", formData, {
+      const response = await axios.post("https://easy-sign-backend.vercel.app/api/files/upload", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
@@ -97,7 +97,7 @@ const Dashboard = () => {
       setSigning(true);
       setError("");
 
-      const response = await axios.post("http://localhost:5000/api/files/sign-pdf", {
+      const response = await axios.post("https://easy-sign-backend.vercel.app/api/files/sign-pdf", {
         fileId,
         signerName: signerNames[index],
       });
@@ -138,7 +138,7 @@ const Dashboard = () => {
     //   setSigning(true);
     //   setError("");
 
-    //   const response = await axios.post("http://localhost:5000/api/files/sign-pdf", {
+    //   const response = await axios.post("https://easy-sign-backend.vercel.app/api/files/sign-pdf", {
     //     fileId,
     //     signerName: signerNames[index],
     //   });
