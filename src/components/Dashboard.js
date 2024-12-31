@@ -1,6 +1,4 @@
 
-
-
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import {
@@ -34,7 +32,7 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchDocuments = async () => {
       try {
-        const response = await axios.get("https://easy-sign-backend.vercel.app/api/files/documents");
+        const response = await axios.get("http://localhost:5000/api/files/documents");
         const { unsigned, signed } = response.data;
         setUploadHistory(response.data); // General file list
         setUnsignedDocuments(unsigned); // Set unsigned files
@@ -69,7 +67,7 @@ const Dashboard = () => {
       setUploading(true);
       setError("");
 
-      const response = await axios.post("https://easy-sign-backend.vercel.app/api/files/upload", formData, {
+      const response = await axios.post("http://localhost:5000/api/files/upload", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
@@ -99,7 +97,7 @@ const Dashboard = () => {
       setSigning(true);
       setError("");
 
-      const response = await axios.post("https://easy-sign-backend.vercel.app/api/files/sign-pdf", {
+      const response = await axios.post("http://localhost:5000/api/files/sign-pdf", {
         fileId,
         signerName: signerNames[index],
       });
@@ -140,7 +138,7 @@ const Dashboard = () => {
     //   setSigning(true);
     //   setError("");
 
-    //   const response = await axios.post("https://easy-sign-backend.vercel.app/api/files/sign-pdf", {
+    //   const response = await axios.post("http://localhost:5000/api/files/sign-pdf", {
     //     fileId,
     //     signerName: signerNames[index],
     //   });
@@ -291,7 +289,7 @@ const Dashboard = () => {
                         <Button
                           variant="contained"
                           color="primary"
-                          href={`https://easy-sign-backend.vercel.app/uploads${item.signedFilePath.replace("/uploads", "")}`}
+                          href={`https://${process.env.REACT_APP_S3_BUCKET}.s3.${process.env.REACT_APP_AWS_REGION}.amazonaws.com/${item.signedFilePath}`} // S3 file URL
                           target="_blank"
                           rel="noopener noreferrer"
                           download={item.fileName} // Enables file download
