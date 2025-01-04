@@ -30,9 +30,36 @@ const Dashboard = () => {
   const [signedFileUrl, setSignedFileUrl] = useState("");
 
   useEffect(() => {
+    // const fetchDocuments = async () => {
+    //   try {
+    //     const response = await axios.get("https://easy-sign-backend.vercel.app/api/files/documents");
+    //     const { unsigned, signed } = response.data;
+    //     setUploadHistory(response.data); // General file list
+    //     setUnsignedDocuments(unsigned); // Set unsigned files
+    //     setSignedDocuments(signed); // Set signed files
+    //     setSignerNames(new Array(unsigned.length).fill("")); // Initialize signer names array
+    //   } catch (err) {
+    //     console.error("Error fetching documents:", err.message);
+    //     setError("Failed to fetch documents.");
+    //   }
+    // };
+
     const fetchDocuments = async () => {
       try {
-        const response = await axios.get("https://easy-sign-backend.vercel.app/api/files/documents");
+        // Get the token from localStorage or sessionStorage (wherever it is stored)
+        const token = localStorage.getItem('authToken');
+
+        if (!token) {
+          setError("User is not authenticated.");
+          return;
+        }
+
+        const response = await axios.get("https://easy-sign-backend.vercel.app/api/files/documents", {
+          headers: {
+            Authorization: `Bearer ${token}`,  // Add token to Authorization header
+          },
+        });
+
         const { unsigned, signed } = response.data;
         setUploadHistory(response.data); // General file list
         setUnsignedDocuments(unsigned); // Set unsigned files
@@ -44,6 +71,7 @@ const Dashboard = () => {
       }
     };
 
+
     fetchDocuments();
   }, []);
 
@@ -53,6 +81,34 @@ const Dashboard = () => {
       setFile(selectedFile);
     }
   };
+
+  // const handleFileUpload = async () => {
+  //   if (!file) {
+  //     setError("Please select a file to upload.");
+  //     return;
+  //   }
+
+  //   const formData = new FormData();
+  //   formData.append("file", file);
+
+  //   try {
+  //     setUploading(true);
+  //     setError("");
+
+  //     const response = await axios.post("https://easy-sign-backend.vercel.app/api/files/upload", formData, {
+  //       headers: { "Content-Type": "multipart/form-data" },
+  //     });
+
+  //     setUploading(false);
+  //     setFile(null);
+  //     setUnsignedDocuments((prev) => [response.data.file, ...prev]); // Add uploaded file to unsigned documents
+  //   } catch (err) {
+  //     setUploading(false);
+  //     console.error("Upload failed:", err.message);
+  //     setError("An error occurred while uploading the file.");
+  //   }
+  // };
+
 
   const handleFileUpload = async () => {
     if (!file) {
@@ -67,8 +123,19 @@ const Dashboard = () => {
       setUploading(true);
       setError("");
 
+      // Get the token from localStorage or sessionStorage (wherever it is stored)
+      const token = localStorage.getItem('authToken');
+
+      if (!token) {
+        setError("User is not authenticated.");
+        return;
+      }
+
       const response = await axios.post("https://easy-sign-backend.vercel.app/api/files/upload", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,  // Add token to Authorization header
+        },
       });
 
       setUploading(false);
@@ -81,11 +148,46 @@ const Dashboard = () => {
     }
   };
 
+
   const handleSignerNameChange = (index, value) => {
     const updatedSignerNames = [...signerNames];
     updatedSignerNames[index] = value;
     setSignerNames(updatedSignerNames);
   };
+
+  // const handlePdfSign = async (fileId, index) => {
+  //   if (!signerNames[index]) {
+  //     setError("Signer name is required.");
+  //     return;
+  //   }
+
+  //   try {
+  //     setSigning(true);
+  //     setError("");
+
+  //     const response = await axios.post("https://easy-sign-backend.vercel.app/api/files/sign-pdf", {
+  //       fileId,
+  //       signerName: signerNames[index],
+  //     });
+
+  //     const signedDocument = {
+  //       ...unsignedDocuments[index],
+  //       signerName: signerNames[index],
+  //       signedFilePath: response.data.signedFilePath,
+  //     };
+
+  //     // Update states for signed documents and remove from unsigned
+  //     setSignedDocuments((prev) => [signedDocument, ...prev]);
+  //     setUnsignedDocuments((prev) => prev.filter((_, i) => i !== index));
+  //     setSignerNames((prev) => prev.filter((_, i) => i !== index));
+  //     setSignedFileUrl(response.data.signedFilePath);
+  //     setSigning(false);
+  //   } catch (err) {
+  //     setSigning(false);
+  //     console.error("Signing failed:", err.message);
+  //     setError("An error occurred while signing the PDF.");
+  //   }
+  // };
 
   const handlePdfSign = async (fileId, index) => {
     if (!signerNames[index]) {
@@ -97,9 +199,21 @@ const Dashboard = () => {
       setSigning(true);
       setError("");
 
+      // Get the token from localStorage or sessionStorage (wherever it is stored)
+      const token = localStorage.getItem('authToken');
+
+      if (!token) {
+        setError("User is not authenticated.");
+        return;
+      }
+
       const response = await axios.post("https://easy-sign-backend.vercel.app/api/files/sign-pdf", {
         fileId,
         signerName: signerNames[index],
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`,  // Add token to Authorization header
+        },
       });
 
       const signedDocument = {
@@ -122,7 +236,6 @@ const Dashboard = () => {
   };
 
 
-
   const handleDocxSign = async (fileId, index) => {
     if (!signerNames[index]) {
       setError("Signer name is required.");
@@ -131,35 +244,7 @@ const Dashboard = () => {
     try {
       // /uploads/1735105726686.docx
     } catch (err) {
-
     }
-
-    // try {
-    //   setSigning(true);
-    //   setError("");
-
-    //   const response = await axios.post("https://easy-sign-backend.vercel.app/api/files/sign-pdf", {
-    //     fileId,
-    //     signerName: signerNames[index],
-    //   });
-
-    //   const signedDocument = {
-    //     ...unsignedDocuments[index],
-    //     signerName: signerNames[index],
-    //     signedFilePath: response.data.signedFilePath,
-    //   };
-
-    //   // Update states for signed documents and remove from unsigned
-    //   setSignedDocuments((prev) => [signedDocument, ...prev]);
-    //   setUnsignedDocuments((prev) => prev.filter((_, i) => i !== index));
-    //   setSignerNames((prev) => prev.filter((_, i) => i !== index));
-    //   setSignedFileUrl(response.data.signedFilePath);
-    //   setSigning(false);
-    // } catch (err) {
-    //   setSigning(false);
-    //   console.error("Signing failed:", err.message);
-    //   setError("An error occurred while signing the PDF.");
-    // }
   };
 
   return (
@@ -215,8 +300,6 @@ const Dashboard = () => {
                     <TableRow key={index}>
                       <TableCell>{item.fileName}</TableCell>
                       <TableCell>{item.size}</TableCell>
-                      {/* <TableCell>{new Date(item.uploadedAt).toLocaleString()}</TableCell> */}
-                      {/* <TableCell>{item.createdAt ? new Date(item.createdAt).toLocaleString() : "N/A"}</TableCell> */}
                       <TableCell>
                         {item.createdAt
                           ? new Date(item.createdAt).toLocaleString("en-GB", {
