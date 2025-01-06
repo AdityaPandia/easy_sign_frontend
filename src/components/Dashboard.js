@@ -30,19 +30,6 @@ const Dashboard = () => {
   const [signedFileUrl, setSignedFileUrl] = useState("");
 
   useEffect(() => {
-    // const fetchDocuments = async () => {
-    //   try {
-    //     const response = await axios.get("https://easy-sign-backend.vercel.app/api/files/documents");
-    //     const { unsigned, signed } = response.data;
-    //     setUploadHistory(response.data); // General file list
-    //     setUnsignedDocuments(unsigned); // Set unsigned files
-    //     setSignedDocuments(signed); // Set signed files
-    //     setSignerNames(new Array(unsigned.length).fill("")); // Initialize signer names array
-    //   } catch (err) {
-    //     console.error("Error fetching documents:", err.message);
-    //     setError("Failed to fetch documents.");
-    //   }
-    // };
 
     const fetchDocuments = async () => {
       try {
@@ -81,33 +68,6 @@ const Dashboard = () => {
       setFile(selectedFile);
     }
   };
-
-  // const handleFileUpload = async () => {
-  //   if (!file) {
-  //     setError("Please select a file to upload.");
-  //     return;
-  //   }
-
-  //   const formData = new FormData();
-  //   formData.append("file", file);
-
-  //   try {
-  //     setUploading(true);
-  //     setError("");
-
-  //     const response = await axios.post("https://easy-sign-backend.vercel.app/api/files/upload", formData, {
-  //       headers: { "Content-Type": "multipart/form-data" },
-  //     });
-
-  //     setUploading(false);
-  //     setFile(null);
-  //     setUnsignedDocuments((prev) => [response.data.file, ...prev]); // Add uploaded file to unsigned documents
-  //   } catch (err) {
-  //     setUploading(false);
-  //     console.error("Upload failed:", err.message);
-  //     setError("An error occurred while uploading the file.");
-  //   }
-  // };
 
 
   const handleFileUpload = async () => {
@@ -155,39 +115,6 @@ const Dashboard = () => {
     setSignerNames(updatedSignerNames);
   };
 
-  // const handlePdfSign = async (fileId, index) => {
-  //   if (!signerNames[index]) {
-  //     setError("Signer name is required.");
-  //     return;
-  //   }
-
-  //   try {
-  //     setSigning(true);
-  //     setError("");
-
-  //     const response = await axios.post("https://easy-sign-backend.vercel.app/api/files/sign-pdf", {
-  //       fileId,
-  //       signerName: signerNames[index],
-  //     });
-
-  //     const signedDocument = {
-  //       ...unsignedDocuments[index],
-  //       signerName: signerNames[index],
-  //       signedFilePath: response.data.signedFilePath,
-  //     };
-
-  //     // Update states for signed documents and remove from unsigned
-  //     setSignedDocuments((prev) => [signedDocument, ...prev]);
-  //     setUnsignedDocuments((prev) => prev.filter((_, i) => i !== index));
-  //     setSignerNames((prev) => prev.filter((_, i) => i !== index));
-  //     setSignedFileUrl(response.data.signedFilePath);
-  //     setSigning(false);
-  //   } catch (err) {
-  //     setSigning(false);
-  //     console.error("Signing failed:", err.message);
-  //     setError("An error occurred while signing the PDF.");
-  //   }
-  // };
 
   const handlePdfSign = async (fileId, index) => {
     if (!signerNames[index]) {
