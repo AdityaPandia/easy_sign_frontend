@@ -16,7 +16,7 @@
 //       setError(""); // Clear previous error
 //       setSuccess(""); // Clear previous success
 //       console.log("Attempting to log in...");
-//       const response = await axios.post("http://localhost:5000/api/auth/login", { email, password });
+//       const response = await axios.post("https://easy-sign-backend.vercel.app/api/auth/login", { email, password });
 //       console.log("Login successful:", response.data);
 //       setSuccess("Login successful!"); // Update success message
 //       // Handle token storage here (e.g., localStorage)
@@ -81,7 +81,7 @@ const Login = () => {
       setError(""); // Clear previous error
       setSuccess(""); // Clear previous success
       console.log("Attempting to log in...");
-      const response = await axios.post("http://localhost:5000/api/auth/login", { email, password });
+      const response = await axios.post("https://easy-sign-backend.vercel.app/api/auth/login", { email, password });
       console.log("Login successful:", response.data);
       setSuccess("Login successful!"); // Update success message
 

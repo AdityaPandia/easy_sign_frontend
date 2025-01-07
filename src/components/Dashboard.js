@@ -46,7 +46,7 @@ const Dashboard = () => {
           return;
         }
 
-        const response = await axios.get("http://localhost:5000/api/files/documents", {
+        const response = await axios.get("https://easy-sign-backend.vercel.app/api/files/documents", {
           headers: {
             Authorization: `Bearer ${token}`,  // Add token to Authorization header
           },
@@ -68,61 +68,61 @@ const Dashboard = () => {
   }, []);
 
 
-//new
-const handleSignModeChange = (index) => {
-  const updatedSignMode = [...signMode];
-  updatedSignMode[index] = updatedSignMode[index] === "text" ? "image" : "text";
-  setSignMode(updatedSignMode);
-};
-const handleImageSign = async (fileId, index) => {
-  const signatureImage = document.getElementById(`signature-image-${index}`).files[0]; // Assuming you have a file input for image
-  const position = { x: 100, y: 200 }; // Set position dynamically or as needed
+  //new
+  const handleSignModeChange = (index) => {
+    const updatedSignMode = [...signMode];
+    updatedSignMode[index] = updatedSignMode[index] === "text" ? "image" : "text";
+    setSignMode(updatedSignMode);
+  };
+  const handleImageSign = async (fileId, index) => {
+    const signatureImage = document.getElementById(`signature-image-${index}`).files[0]; // Assuming you have a file input for image
+    const position = { x: 100, y: 200 }; // Set position dynamically or as needed
 
-  if (!signatureImage) {
-    setError("Please upload a signature image.");
-    return;
-  }
-
-  try {
-    setSigning(true);
-    setError("");
-
-    const token = localStorage.getItem('authToken');
-    if (!token) {
-      setError("User is not authenticated.");
+    if (!signatureImage) {
+      setError("Please upload a signature image.");
       return;
     }
 
-    const formData = new FormData();
-    formData.append("signatureImage", signatureImage);
-    formData.append("fileId", fileId);
-    formData.append("position", JSON.stringify(position));
+    try {
+      setSigning(true);
+      setError("");
 
-    const response = await axios.post("http://localhost:5000/api/files/sign-pdf-with-image", formData, {
-      headers: {
-        "Authorization": `Bearer ${token}`,
-        "Content-Type": "multipart/form-data",
-      },
-    });
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        setError("User is not authenticated.");
+        return;
+      }
 
-    const signedDocument = {
-      ...unsignedDocuments[index],
-      signerName: signerNames[index], // Assuming signer name can still be added
-      signedFilePath: response.data.signedFilePath,
-    };
+      const formData = new FormData();
+      formData.append("signatureImage", signatureImage);
+      formData.append("fileId", fileId);
+      formData.append("position", JSON.stringify(position));
 
-    setSignedDocuments((prev) => [signedDocument, ...prev]);
-    setUnsignedDocuments((prev) => prev.filter((_, i) => i !== index));
-    setSignerNames((prev) => prev.filter((_, i) => i !== index));
-    setSignedFileUrl(response.data.signedFilePath);
-    setSigning(false);
-  } catch (err) {
-    setSigning(false);
-    console.error("Signing failed:", err.message);
-    setError("An error occurred while signing the PDF.");
-  }
-};
-//new
+      const response = await axios.post("https://easy-sign-backend.vercel.app/api/files/sign-pdf-with-image", formData, {
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      const signedDocument = {
+        ...unsignedDocuments[index],
+        signerName: signerNames[index], // Assuming signer name can still be added
+        signedFilePath: response.data.signedFilePath,
+      };
+
+      setSignedDocuments((prev) => [signedDocument, ...prev]);
+      setUnsignedDocuments((prev) => prev.filter((_, i) => i !== index));
+      setSignerNames((prev) => prev.filter((_, i) => i !== index));
+      setSignedFileUrl(response.data.signedFilePath);
+      setSigning(false);
+    } catch (err) {
+      setSigning(false);
+      console.error("Signing failed:", err.message);
+      setError("An error occurred while signing the PDF.");
+    }
+  };
+  //new
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
@@ -153,7 +153,7 @@ const handleImageSign = async (fileId, index) => {
         return;
       }
 
-      const response = await axios.post("http://localhost:5000/api/files/upload", formData, {
+      const response = await axios.post("https://easy-sign-backend.vercel.app/api/files/upload", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${token}`,  // Add token to Authorization header
@@ -196,7 +196,7 @@ const handleImageSign = async (fileId, index) => {
         return;
       }
 
-      const response = await axios.post("http://localhost:5000/api/files/sign-pdf", {
+      const response = await axios.post("https://easy-sign-backend.vercel.app/api/files/sign-pdf", {
         fileId,
         signerName: signerNames[index],
       }, {
@@ -303,50 +303,50 @@ const handleImageSign = async (fileId, index) => {
                       </TableCell>
 
                       <TableCell>
-  <TextField
-    label="Signer Name"
-    variant="outlined"
-    size="small"
-    value={signerNames[index] || ""}
-    onChange={(e) => handleSignerNameChange(index, e.target.value)}
-    sx={{ marginRight: 1 }}
-  />
-  
-  <Button
-    variant="contained"
-    color="secondary"
-    onClick={() => {
-      if (signMode[index] === "text") {
-        item.fileName.endsWith(".docx")
-          ? handleDocxSign(item.id, index)
-          : handlePdfSign(item.id, index);
-      } else {
-        handleImageSign(item.id, index);
-      }
-    }}
-    disabled={signing}
-  >
-    {signing ? "Signing..." : signMode[index] === "text" ? (item.fileName.endsWith(".docx") ? "Sign DOC" : "Sign PDF") : "Sign with Image"}
-  </Button>
+                        <TextField
+                          label="Signer Name"
+                          variant="outlined"
+                          size="small"
+                          value={signerNames[index] || ""}
+                          onChange={(e) => handleSignerNameChange(index, e.target.value)}
+                          sx={{ marginRight: 1 }}
+                        />
 
-  <ToggleButton
-    value="check"
-    selected={signMode[index] === "image"}
-    onChange={() => handleSignModeChange(index)}
-    sx={{ marginLeft: 1 }}
-  >
-    Toggle Sign Mode
-  </ToggleButton>
+                        <Button
+                          variant="contained"
+                          color="secondary"
+                          onClick={() => {
+                            if (signMode[index] === "text") {
+                              item.fileName.endsWith(".docx")
+                                ? handleDocxSign(item.id, index)
+                                : handlePdfSign(item.id, index);
+                            } else {
+                              handleImageSign(item.id, index);
+                            }
+                          }}
+                          disabled={signing}
+                        >
+                          {signing ? "Signing..." : signMode[index] === "text" ? (item.fileName.endsWith(".docx") ? "Sign DOC" : "Sign PDF") : "Sign with Image"}
+                        </Button>
 
-  {signMode[index] === "image" && (
-    <input
-      type="file"
-      id={`signature-image-${index}`}
-      accept="image/png"
-      style={{ marginTop: "8px" }}
-    />
-  )}
-</TableCell>
+                        <ToggleButton
+                          value="check"
+                          selected={signMode[index] === "image"}
+                          onChange={() => handleSignModeChange(index)}
+                          sx={{ marginLeft: 1 }}
+                        >
+                          Toggle Sign Mode
+                        </ToggleButton>
+
+                        {signMode[index] === "image" && (
+                          <input
+                            type="file"
+                            id={`signature-image-${index}`}
+                            accept="image/png"
+                            style={{ marginTop: "8px" }}
+                          />
+                        )}
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
