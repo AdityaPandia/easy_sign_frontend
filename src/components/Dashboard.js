@@ -336,7 +336,7 @@ const Dashboard = () => {
       <Card sx={{ maxWidth: 800, margin: "0 auto", marginBottom: 4 }}>
         <CardContent>
           <Typography variant="h6" color="primary" gutterBottom>
-            Unsigned Documents <History />
+            Unsigned Documents (Use PNG Files for signature images) <History />
           </Typography>
           {unsignedDocuments.length === 0 ? (
             <Typography>No unsigned documents.</Typography>
