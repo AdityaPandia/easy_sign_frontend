@@ -211,6 +211,7 @@ const Dashboard = () => {
         ...unsignedDocuments[index],
         signerName: signerNames[index],
         signedFilePath: response.data.signedFilePath,
+        signedAt: new Date().toISOString(), // Add current timestamp
       };
 
       // Update states for signed documents and remove from unsigned
@@ -269,6 +270,7 @@ const Dashboard = () => {
       const signedDocument = {
         ...unsignedDocuments[index],
         signedFilePath: response.data.signedFilePath,
+        signedAt: new Date().toISOString(), // Add current timestamp
       };
 
       // Update states for signed documents and remove from unsigned
@@ -554,7 +556,9 @@ const Dashboard = () => {
                     <TableRow key={index}>
                       <TableCell>{item.fileName}</TableCell>
                       <TableCell>{item.signerName}</TableCell>
-                      <TableCell>{new Date(item.signedAt).toLocaleString()}</TableCell>
+                      <TableCell>
+                        {new Date(item.signedAt).toLocaleString()}
+                      </TableCell>
                       <TableCell>
                         <Button
                           variant="contained"
