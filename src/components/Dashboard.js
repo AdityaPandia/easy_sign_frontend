@@ -64,6 +64,11 @@ const Dashboard = () => {
     fetchDocuments();
   }, []);
 
+  const openWordDocument = (filePath) => {
+    window.open(filePath, "_blank");
+  };
+  
+
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
     if (selectedFile) {
@@ -264,78 +269,9 @@ const Dashboard = () => {
         </CardContent>
       </Card>
 
+
       {/* Unsigned Documents Section */}
       {/* <Card sx={{ maxWidth: 800, margin: "0 auto", marginBottom: 4 }}>
-        <CardContent>
-          <Typography variant="h6" color="primary" gutterBottom>
-            Unsigned Documents <History />
-          </Typography>
-          {unsignedDocuments.length === 0 ? (
-            <Typography>No unsigned documents.</Typography>
-          ) : (
-            <TableContainer component={Paper}>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>File Name</TableCell>
-                    <TableCell>File Size (Bytes)</TableCell>
-                    <TableCell>Uploaded At</TableCell>
-                    <TableCell>Action</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-
-
-                  {unsignedDocuments.map((item, index) => (
-                    <TableRow key={index}>
-                      <TableCell>{item.fileName}</TableCell>
-                      <TableCell>{item.size}</TableCell>
-                      <TableCell>
-                        {item.createdAt
-                          ? new Date(item.createdAt).toLocaleString("en-GB", {
-                            day: "2-digit",
-                            month: "2-digit",
-                            year: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                            hour12: true,
-                          })
-                          : "N/A"}
-                      </TableCell>
-
-                      <TableCell>
-                        <TextField
-                          label="Signer Name"
-                          variant="outlined"
-                          size="small"
-                          value={signerNames[index] || ""}
-                          onChange={(e) => handleSignerNameChange(index, e.target.value)}
-                          sx={{ marginRight: 1 }}
-                        />
-                        <Button
-                          variant="contained"
-                          color="secondary"
-                          onClick={() =>
-                            item.fileName.endsWith(".docx")
-                              ? handleDocxSign(item.id, index)
-                              : handlePdfSign(item.id, index)
-                          }
-                          disabled={signing}
-                        >
-                          {signing ? "Signing..." : item.fileName.endsWith(".docx") ? "Sign DOC" : "Sign PDF"}
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          )}
-        </CardContent>
-      </Card> */}
-
-      {/* Unsigned Documents Section */}
-      <Card sx={{ maxWidth: 800, margin: "0 auto", marginBottom: 4 }}>
         <CardContent>
           <Typography variant="h6" color="primary" gutterBottom>
             Unsigned Documents (Use PNG Files for signature images) <History />
@@ -443,7 +379,139 @@ const Dashboard = () => {
             </TableContainer>
           )}
         </CardContent>
-      </Card>
+      </Card> */}
+
+
+      {/* Unsigned Documents Section */}
+<Card sx={{ maxWidth: 800, margin: "0 auto", marginBottom: 4 }}>
+  <CardContent>
+    <Typography variant="h6" color="primary" gutterBottom>
+      Unsigned Documents (Use PNG Files for signature images) <History />
+    </Typography>
+    {unsignedDocuments.length === 0 ? (
+      <Typography>No unsigned documents.</Typography>
+    ) : (
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>File Name</TableCell>
+              <TableCell>File Size (Bytes)</TableCell>
+              <TableCell>Uploaded At</TableCell>
+              <TableCell>Action</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {unsignedDocuments.map((item, index) => (
+              <TableRow key={index}>
+                <TableCell>{item.fileName}</TableCell>
+                <TableCell>{item.size}</TableCell>
+                <TableCell>
+                  {item.createdAt
+                    ? new Date(item.createdAt).toLocaleString("en-GB", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        hour12: true,
+                      })
+                    : "N/A"}
+                </TableCell>
+                <TableCell>
+                  {item.fileName.endsWith(".docx") ? (
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      // onClick={() => openWordDocument(item.filePath)}
+                        href={`https://${process.env.REACT_APP_S3_BUCKET}.s3.${process.env.REACT_APP_AWS_REGION}.amazonaws.com/${item.filePath}`} // S3 file URL
+                    >
+                      Open Word AddIn
+                    </Button>
+                  ) : (
+                    <>
+                      <FormControlLabel
+                        control={
+                          <Switch
+                            checked={signerNames[index]?.useImage || false}
+                            onChange={(e) => {
+                              const updatedSignerNames = [...signerNames];
+                              updatedSignerNames[index] = {
+                                ...updatedSignerNames[index],
+                                useImage: e.target.checked,
+                              };
+                              setSignerNames(updatedSignerNames);
+                            }}
+                          />
+                        }
+                        label={
+                          signerNames[index]?.useImage
+                            ? "Sign with Image"
+                            : "Sign with Text"
+                        }
+                      />
+
+                      {signerNames[index]?.useImage ? (
+                        <div>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => {
+                              const updatedSignerNames = [...signerNames];
+                              updatedSignerNames[index] = {
+                                ...updatedSignerNames[index],
+                                signatureImage: e.target.files[0],
+                              };
+                              setSignerNames(updatedSignerNames);
+                            }}
+                          />
+                          <Button
+                            variant="contained"
+                            color="secondary"
+                            onClick={() =>
+                              handlePdfSignWithImage(item.id, index)
+                            }
+                            disabled={signing}
+                          >
+                            {signing ? "Signing..." : "Sign PDF with Image"}
+                          </Button>
+                        </div>
+                      ) : (
+                        <div>
+                          <TextField
+                            label="Signer Name"
+                            variant="outlined"
+                            size="small"
+                            value={signerNames[index] || ""}
+                            onChange={(e) =>
+                              handleSignerNameChange(index, e.target.value)
+                            }
+                            sx={{ marginRight: 1 }}
+                          />
+                          <Button
+                            variant="contained"
+                            color="secondary"
+                            onClick={() => handlePdfSign(item.id, index)}
+                            disabled={signing}
+                          >
+                            {signing
+                              ? "Signing..."
+                              : "Sign PDF"}
+                          </Button>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    )}
+  </CardContent>
+</Card>
+
 
 
 
