@@ -16,7 +16,7 @@ import {
   TableHead,
   TableRow,
   Paper,
-  TextField,
+  TextField, ToggleButton, ToggleButtonGroup
 } from "@mui/material";
 import { UploadFile, History } from "@mui/icons-material";
 
@@ -30,6 +30,11 @@ const Dashboard = () => {
   const [signing, setSigning] = useState(false);
   const [signerNames, setSignerNames] = useState([]); // List of signer names for each unsigned document
   const [signedFileUrl, setSignedFileUrl] = useState("");
+
+  //new
+  const [signMode, setSignMode] = useState(new Array(unsignedDocuments.length).fill("text")); // Initialize with "text" mode
+
+
 
   useEffect(() => {
 
@@ -64,10 +69,64 @@ const Dashboard = () => {
     fetchDocuments();
   }, []);
 
-  const openWordDocument = (filePath) => {
-    window.open(filePath, "_blank");
+
+
+  //new
+  const handleSignModeChange = (index) => {
+    const updatedSignMode = [...signMode];
+    updatedSignMode[index] = updatedSignMode[index] === "text" ? "image" : "text";
+    setSignMode(updatedSignMode);
   };
-  
+  const handleImageSign = async (fileId, index) => {
+    const signatureImage = document.getElementById(`signature-image-${index}`).files[0]; // Assuming you have a file input for image
+    const position = { x: 100, y: 200 }; // Set position dynamically or as needed
+
+    if (!signatureImage) {
+      setError("Please upload a signature image.");
+      return;
+    }
+
+    try {
+      setSigning(true);
+      setError("");
+
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        setError("User is not authenticated.");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("signatureImage", signatureImage);
+      formData.append("fileId", fileId);
+      formData.append("position", JSON.stringify(position));
+
+      const response = await axios.post("https://easy-sign-backend.vercel.app/api/files/sign-pdf-with-image", formData, {
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      const signedDocument = {
+        ...unsignedDocuments[index],
+        signerName: signerNames[index], // Assuming signer name can still be added
+        signedFilePath: response.data.signedFilePath,
+      };
+
+      setSignedDocuments((prev) => [signedDocument, ...prev]);
+      setUnsignedDocuments((prev) => prev.filter((_, i) => i !== index));
+      setSignerNames((prev) => prev.filter((_, i) => i !== index));
+      setSignedFileUrl(response.data.signedFilePath);
+      setSigning(false);
+    } catch (err) {
+      setSigning(false);
+      console.error("Signing failed:", err.message);
+      setError("An error occurred while signing the PDF.");
+    }
+  };
+  //new
+
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
@@ -268,6 +327,100 @@ const Dashboard = () => {
           </Box>
         </CardContent>
       </Card>
+
+
+      {/* Unsigned Documents Section */}
+      {/* <Card sx={{ maxWidth: 800, margin: "0 auto", marginBottom: 4 }}>
+        <CardContent>
+          <Typography variant="h6" color="primary" gutterBottom>
+            Unsigned Documents <History />
+          </Typography>
+          {unsignedDocuments.length === 0 ? (
+            <Typography>No unsigned documents.</Typography>
+          ) : (
+            <TableContainer component={Paper}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>File Name</TableCell>
+                    <TableCell>File Size (Bytes)</TableCell>
+                    <TableCell>Uploaded At</TableCell>
+                    <TableCell>Action</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+
+
+                  {unsignedDocuments.map((item, index) => (
+                    <TableRow key={index}>
+                      <TableCell>{item.fileName}</TableCell>
+                      <TableCell>{item.size}</TableCell>
+                      <TableCell>
+                        {item.createdAt
+                          ? new Date(item.createdAt).toLocaleString("en-GB", {
+                            day: "2-digit",
+                            month: "2-digit",
+                            year: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            hour12: true,
+                          })
+                          : "N/A"}
+                      </TableCell>
+
+                      <TableCell>
+                        <TextField
+                          label="Signer Name"
+                          variant="outlined"
+                          size="small"
+                          value={signerNames[index] || ""}
+                          onChange={(e) => handleSignerNameChange(index, e.target.value)}
+                          sx={{ marginRight: 1 }}
+                        />
+
+                        <Button
+                          variant="contained"
+                          color="secondary"
+                          onClick={() => {
+                            if (signMode[index] === "text") {
+                              item.fileName.endsWith(".docx")
+                                ? handleDocxSign(item.id, index)
+                                : handlePdfSign(item.id, index);
+                            } else {
+                              handleImageSign(item.id, index);
+                            }
+                          }}
+                          disabled={signing}
+                        >
+                          {signing ? "Signing..." : signMode[index] === "text" ? (item.fileName.endsWith(".docx") ? "Sign DOC" : "Sign PDF") : "Sign with Image"}
+                        </Button>
+
+                        <ToggleButton
+                          value="check"
+                          selected={signMode[index] === "image"}
+                          onChange={() => handleSignModeChange(index)}
+                          sx={{ marginLeft: 1 }}
+                        >
+                          Toggle Sign Mode
+                        </ToggleButton>
+
+                        {signMode[index] === "image" && (
+                          <input
+                            type="file"
+                            id={`signature-image-${index}`}
+                            accept="image/png"
+                            style={{ marginTop: "8px" }}
+                          />
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          )}
+        </CardContent>
+      </Card> */}
 
 
       {/* Unsigned Documents Section */}
