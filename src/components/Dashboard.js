@@ -1,3 +1,5 @@
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Switch from '@mui/material/Switch';
 
 import React, { useState, useEffect } from "react";
 import axios from "axios";
@@ -163,6 +165,65 @@ const Dashboard = () => {
   };
 
 
+  const handlePdfSignWithImage = async (fileId, index) => {
+    const { signatureImage } = signerNames[index] || {};
+
+    if (!signatureImage) {
+      setError("Please upload a signature image.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("fileId", fileId);
+    formData.append("signatureImage", signatureImage);
+    formData.append("x", 100); // Replace with your desired x-coordinate
+    formData.append("y", 150); // Replace with your desired y-coordinate
+    formData.append("width", 200); // Replace with your desired width
+    formData.append("height", 100); // Replace with your desired height
+
+    try {
+      setSigning(true);
+      setError("");
+
+      // Get the token from localStorage or sessionStorage (wherever it is stored)
+      const token = localStorage.getItem("authToken");
+
+      if (!token) {
+        setError("User is not authenticated.");
+        return;
+      }
+
+      const response = await axios.post(
+        "https://easy-sign-backend.vercel.app/api/files/sign-pdf-with-image",
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      const signedDocument = {
+        ...unsignedDocuments[index],
+        signedFilePath: response.data.signedFilePath,
+      };
+
+      // Update states for signed documents and remove from unsigned
+      setSignedDocuments((prev) => [signedDocument, ...prev]);
+      setUnsignedDocuments((prev) => prev.filter((_, i) => i !== index));
+      setSignerNames((prev) => prev.filter((_, i) => i !== index));
+      setSignedFileUrl(response.data.signedFilePath);
+      setSigning(false);
+    } catch (err) {
+      setSigning(false);
+      console.error("Signing with image failed:", err.message);
+      setError("An error occurred while signing the PDF with an image.");
+    }
+  };
+
+
+
   const handleDocxSign = async (fileId, index) => {
     if (!signerNames[index]) {
       setError("Signer name is required.");
@@ -202,7 +263,7 @@ const Dashboard = () => {
       </Card>
 
       {/* Unsigned Documents Section */}
-      <Card sx={{ maxWidth: 800, margin: "0 auto", marginBottom: 4 }}>
+      {/* <Card sx={{ maxWidth: 800, margin: "0 auto", marginBottom: 4 }}>
         <CardContent>
           <Typography variant="h6" color="primary" gutterBottom>
             Unsigned Documents <History />
@@ -269,7 +330,121 @@ const Dashboard = () => {
             </TableContainer>
           )}
         </CardContent>
+      </Card> */}
+
+      {/* Unsigned Documents Section */}
+      <Card sx={{ maxWidth: 800, margin: "0 auto", marginBottom: 4 }}>
+        <CardContent>
+          <Typography variant="h6" color="primary" gutterBottom>
+            Unsigned Documents <History />
+          </Typography>
+          {unsignedDocuments.length === 0 ? (
+            <Typography>No unsigned documents.</Typography>
+          ) : (
+            <TableContainer component={Paper}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>File Name</TableCell>
+                    <TableCell>File Size (Bytes)</TableCell>
+                    <TableCell>Uploaded At</TableCell>
+                    <TableCell>Action</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {unsignedDocuments.map((item, index) => (
+                    <TableRow key={index}>
+                      <TableCell>{item.fileName}</TableCell>
+                      <TableCell>{item.size}</TableCell>
+                      <TableCell>
+                        {item.createdAt
+                          ? new Date(item.createdAt).toLocaleString("en-GB", {
+                            day: "2-digit",
+                            month: "2-digit",
+                            year: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            hour12: true,
+                          })
+                          : "N/A"}
+                      </TableCell>
+                      <TableCell>
+                        <FormControlLabel
+                          control={
+                            <Switch
+                              checked={signerNames[index]?.useImage || false}
+                              onChange={(e) => {
+                                const updatedSignerNames = [...signerNames];
+                                updatedSignerNames[index] = {
+                                  ...updatedSignerNames[index],
+                                  useImage: e.target.checked,
+                                };
+                                setSignerNames(updatedSignerNames);
+                              }}
+                            />
+                          }
+                          label={signerNames[index]?.useImage ? "Sign with Image" : "Sign with Text"}
+                        />
+
+                        {signerNames[index]?.useImage ? (
+                          <div>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) => {
+                                const updatedSignerNames = [...signerNames];
+                                updatedSignerNames[index] = {
+                                  ...updatedSignerNames[index],
+                                  signatureImage: e.target.files[0],
+                                };
+                                setSignerNames(updatedSignerNames);
+                              }}
+                            />
+                            <Button
+                              variant="contained"
+                              color="secondary"
+                              onClick={() => handlePdfSignWithImage(item.id, index)}
+                              disabled={signing}
+                            >
+                              {signing ? "Signing..." : "Sign PDF with Image"}
+                            </Button>
+                          </div>
+                        ) : (
+                          <div>
+                            <TextField
+                              label="Signer Name"
+                              variant="outlined"
+                              size="small"
+                              value={signerNames[index] || ""}
+                              onChange={(e) => handleSignerNameChange(index, e.target.value)}
+                              sx={{ marginRight: 1 }}
+                            />
+                            <Button
+                              variant="contained"
+                              color="secondary"
+                              onClick={() =>
+                                item.fileName.endsWith(".docx")
+                                  ? handleDocxSign(item.id, index)
+                                  : handlePdfSign(item.id, index)
+                              }
+                              disabled={signing}
+                            >
+                              {signing ? "Signing..." : item.fileName.endsWith(".docx") ? "Sign DOC" : "Sign PDF"}
+                            </Button>
+                          </div>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          )}
+        </CardContent>
       </Card>
+
+
+
 
       {/* Signed Documents Section */}
       <Card sx={{ maxWidth: 800, margin: "0 auto" }}>
