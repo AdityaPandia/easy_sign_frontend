@@ -31,6 +31,11 @@ const Dashboard = () => {
   const [signerNames, setSignerNames] = useState([]); // List of signer names for each unsigned document
   const [signedFileUrl, setSignedFileUrl] = useState("");
 
+
+  const [signaturePosition, setSignaturePosition] = useState({ x: 100, y: 150 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+
   //new
   const [signMode, setSignMode] = useState(new Array(unsignedDocuments.length).fill("text")); // Initialize with "text" mode
 
@@ -230,6 +235,33 @@ const Dashboard = () => {
   };
 
 
+
+  const onMouseDown = (e) => {
+    const canvas = e.target;
+    const rect = canvas.getBoundingClientRect();
+    setDragOffset({
+      x: e.clientX - rect.left - signaturePosition.x,
+      y: e.clientY - rect.top - signaturePosition.y,
+    });
+    setIsDragging(true);
+  };
+
+  const onMouseMove = (e) => {
+    if (isDragging) {
+      const canvas = e.target;
+      const rect = canvas.getBoundingClientRect();
+      setSignaturePosition({
+        x: e.clientX - rect.left - dragOffset.x,
+        y: e.clientY - rect.top - dragOffset.y,
+      });
+    }
+  };
+
+  const onMouseUp = () => {
+    setIsDragging(false);
+  };
+
+
   const handlePdfSignWithImage = async (fileId, index) => {
     const { signatureImage } = signerNames[index] || {};
 
@@ -241,8 +273,10 @@ const Dashboard = () => {
     const formData = new FormData();
     formData.append("fileId", fileId);
     formData.append("signatureImage", signatureImage);
-    formData.append("x", 100); // Replace with your desired x-coordinate
-    formData.append("y", 150); // Replace with your desired y-coordinate
+    // formData.append("x", 100); // Replace with your desired x-coordinate
+    // formData.append("y", 150); // Replace with your desired y-coordinate
+    formData.append('x', signaturePosition.x); // Use user-defined x-coordinate
+    formData.append('y', signaturePosition.y); //
     formData.append("width", 200); // Replace with your desired width
     formData.append("height", 100); // Replace with your desired height
 
@@ -536,134 +570,162 @@ const Dashboard = () => {
 
 
       {/* Unsigned Documents Section */}
-<Card sx={{ maxWidth: 800, margin: "0 auto", marginBottom: 4 }}>
-  <CardContent>
-    <Typography variant="h6" color="primary" gutterBottom>
-      Unsigned Documents (Use PNG Files for signature images) <History />
-    </Typography>
-    {unsignedDocuments.length === 0 ? (
-      <Typography>No unsigned documents.</Typography>
-    ) : (
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>File Name</TableCell>
-              <TableCell>File Size (Bytes)</TableCell>
-              <TableCell>Uploaded At</TableCell>
-              <TableCell>Action</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {unsignedDocuments.map((item, index) => (
-              <TableRow key={index}>
-                <TableCell>{item.fileName}</TableCell>
-                <TableCell>{item.size}</TableCell>
-                <TableCell>
-                  {item.createdAt
-                    ? new Date(item.createdAt).toLocaleString("en-GB", {
-                        day: "2-digit",
-                        month: "2-digit",
-                        year: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                        hour12: true,
-                      })
-                    : "N/A"}
-                </TableCell>
-                <TableCell>
-                  {item.fileName.endsWith(".docx") ? (
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      // onClick={() => openWordDocument(item.filePath)}
-                        href={`https://${process.env.REACT_APP_S3_BUCKET}.s3.${process.env.REACT_APP_AWS_REGION}.amazonaws.com/${item.filePath}`} // S3 file URL
-                    >
-                      Open Word AddIn
-                    </Button>
-                  ) : (
-                    <>
-                      <FormControlLabel
-                        control={
-                          <Switch
-                            checked={signerNames[index]?.useImage || false}
-                            onChange={(e) => {
-                              const updatedSignerNames = [...signerNames];
-                              updatedSignerNames[index] = {
-                                ...updatedSignerNames[index],
-                                useImage: e.target.checked,
-                              };
-                              setSignerNames(updatedSignerNames);
-                            }}
-                          />
-                        }
-                        label={
-                          signerNames[index]?.useImage
-                            ? "Sign with Image"
-                            : "Sign with Text"
-                        }
-                      />
+      <Card sx={{ maxWidth: 800, margin: "0 auto", marginBottom: 4 }}>
+        <CardContent>
+          <Typography variant="h6" color="primary" gutterBottom>
+            Unsigned Documents (Use PNG Files for signature images) <History />
+          </Typography>
+          {unsignedDocuments.length === 0 ? (
+            <Typography>No unsigned documents.</Typography>
+          ) : (
+            <TableContainer component={Paper}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>File Name</TableCell>
+                    <TableCell>File Size (Bytes)</TableCell>
+                    <TableCell>Uploaded At</TableCell>
+                    <TableCell>Action</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {unsignedDocuments.map((item, index) => (
+                    <TableRow key={index}>
+                      <TableCell>{item.fileName}</TableCell>
+                      <TableCell>{item.size}</TableCell>
+                      <TableCell>
+                        {item.createdAt
+                          ? new Date(item.createdAt).toLocaleString("en-GB", {
+                            day: "2-digit",
+                            month: "2-digit",
+                            year: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            hour12: true,
+                          })
+                          : "N/A"}
+                      </TableCell>
+                      <TableCell>
+                        {item.fileName.endsWith(".docx") ? (
+                          <Button
+                            variant="contained"
+                            color="primary"
+                            // onClick={() => openWordDocument(item.filePath)}
+                            href={`https://${process.env.REACT_APP_S3_BUCKET}.s3.${process.env.REACT_APP_AWS_REGION}.amazonaws.com/${item.filePath}`} // S3 file URL
+                          >
+                            Open Word AddIn
+                          </Button>
+                        ) : (
+                          <>
+                            <FormControlLabel
+                              control={
+                                <Switch
+                                  checked={signerNames[index]?.useImage || false}
+                                  onChange={(e) => {
+                                    const updatedSignerNames = [...signerNames];
+                                    updatedSignerNames[index] = {
+                                      ...updatedSignerNames[index],
+                                      useImage: e.target.checked,
+                                    };
+                                    setSignerNames(updatedSignerNames);
+                                  }}
+                                />
+                              }
+                              label={
+                                signerNames[index]?.useImage
+                                  ? "Sign with Image"
+                                  : "Sign with Text"
+                              }
+                            />
 
-                      {signerNames[index]?.useImage ? (
-                        <div>
-                          <input
-                            type="file"
-                            accept="image/*"
-                            onChange={(e) => {
-                              const updatedSignerNames = [...signerNames];
-                              updatedSignerNames[index] = {
-                                ...updatedSignerNames[index],
-                                signatureImage: e.target.files[0],
-                              };
-                              setSignerNames(updatedSignerNames);
-                            }}
-                          />
-                          <Button
-                            variant="contained"
-                            color="secondary"
-                            onClick={() =>
-                              handlePdfSignWithImage(item.id, index)
-                            }
-                            disabled={signing}
-                          >
-                            {signing ? "Signing..." : "Sign PDF with Image"}
-                          </Button>
-                        </div>
-                      ) : (
-                        <div>
-                          <TextField
-                            label="Signer Name"
-                            variant="outlined"
-                            size="small"
-                            value={signerNames[index] || ""}
-                            onChange={(e) =>
-                              handleSignerNameChange(index, e.target.value)
-                            }
-                            sx={{ marginRight: 1 }}
-                          />
-                          <Button
-                            variant="contained"
-                            color="secondary"
-                            onClick={() => handlePdfSign(item.id, index)}
-                            disabled={signing}
-                          >
-                            {signing
-                              ? "Signing..."
-                              : "Sign PDF"}
-                          </Button>
-                        </div>
-                      )}
-                    </>
-                  )}
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    )}
-  </CardContent>
-</Card>
+                            {signerNames[index]?.useImage ? (
+                              <div>
+                                <div
+                                  style={{
+                                    width: '500px',
+                                    height: '700px',
+                                    border: '2px solid black',
+                                    position: 'relative',
+                                  }}
+                                  onMouseMove={onMouseMove}
+                                  onMouseUp={onMouseUp}
+                                  onMouseLeave={onMouseUp}
+                                  onMouseDown={onMouseDown}
+                                >
+                                  <img
+                                    src={signerNames[0]?.signatureImage}
+                                    alt="Signature"
+                                    style={{
+                                      position: 'absolute',
+                                      left: signaturePosition.x,
+                                      top: signaturePosition.y,
+                                      cursor: 'move',
+                                    }}
+                                  />
+                                </div>
+
+                                <div>
+
+                                </div>
+                                <div>
+                                  <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={(e) => {
+                                      const updatedSignerNames = [...signerNames];
+                                      updatedSignerNames[index] = {
+                                        ...updatedSignerNames[index],
+                                        signatureImage: e.target.files[0],
+                                      };
+                                      setSignerNames(updatedSignerNames);
+                                    }}
+                                  />
+                                  <Button
+                                    variant="contained"
+                                    color="secondary"
+                                    onClick={() =>
+                                      handlePdfSignWithImage(item.id, index)
+                                    }
+                                    disabled={signing}
+                                  >
+                                    {signing ? "Signing..." : "Sign PDF with Image"}
+                                  </Button>
+                                </div></div>
+                            ) : (
+                              <div>
+                                <TextField
+                                  label="Signer Name"
+                                  variant="outlined"
+                                  size="small"
+                                  value={signerNames[index] || ""}
+                                  onChange={(e) =>
+                                    handleSignerNameChange(index, e.target.value)
+                                  }
+                                  sx={{ marginRight: 1 }}
+                                />
+                                <Button
+                                  variant="contained"
+                                  color="secondary"
+                                  onClick={() => handlePdfSign(item.id, index)}
+                                  disabled={signing}
+                                >
+                                  {signing
+                                    ? "Signing..."
+                                    : "Sign PDF"}
+                                </Button>
+                              </div>
+                            )}
+                          </>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          )}
+        </CardContent>
+      </Card>
 
 
 
