@@ -53,7 +53,7 @@ const Dashboard = () => {
           return;
         }
 
-        const response = await axios.get("https://easy-sign-backend.vercel.app/api/files/documents", {
+        const response = await axios.get("http://localhost:5000/api/files/documents", {
           headers: {
             Authorization: `Bearer ${token}`,  // Add token to Authorization header
           },
@@ -106,7 +106,7 @@ const Dashboard = () => {
   //     formData.append("fileId", fileId);
   //     formData.append("position", JSON.stringify(position));
 
-  //     const response = await axios.post("https://easy-sign-backend.vercel.app/api/files/sign-pdf-with-image", formData, {
+  //     const response = await axios.post("http://localhost:5000/api/files/sign-pdf-with-image", formData, {
   //       headers: {
   //         "Authorization": `Bearer ${token}`,
   //         "Content-Type": "multipart/form-data",
@@ -162,7 +162,7 @@ const Dashboard = () => {
         return;
       }
 
-      const response = await axios.post("https://easy-sign-backend.vercel.app/api/files/upload", formData, {
+      const response = await axios.post("http://localhost:5000/api/files/upload", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${token}`,  // Add token to Authorization header
@@ -205,7 +205,7 @@ const Dashboard = () => {
         return;
       }
 
-      const response = await axios.post("https://easy-sign-backend.vercel.app/api/files/sign-pdf", {
+      const response = await axios.post("http://localhost:5000/api/files/sign-pdf", {
         fileId,
         signerName: signerNames[index],
       }, {
@@ -273,8 +273,8 @@ const Dashboard = () => {
     const formData = new FormData();
     formData.append("fileId", fileId);
     formData.append("signatureImage", signatureImage);
-    formData.append("x", 100); // Replace with your desired x-coordinate
-    formData.append("y", 150); // Replace with your desired y-coordinate
+    formData.append("x", 10); // Replace with your desired x-coordinate
+    formData.append("y", 10); // Replace with your desired y-coordinate
     // formData.append('x', signaturePosition.x); // Use user-defined x-coordinate
     // formData.append('y', signaturePosition.y); //
     formData.append("width", 200); // Replace with your desired width
@@ -293,7 +293,7 @@ const Dashboard = () => {
       }
 
       const response = await axios.post(
-        "https://easy-sign-backend.vercel.app/api/files/sign-pdf-with-image",
+        "http://localhost:5000/api/files/sign-pdf-with-image",
         formData,
         {
           headers: {
@@ -643,36 +643,36 @@ const Dashboard = () => {
                             />
 
                             {signerNames[index]?.useImage ? (
-                            
 
 
-                               
 
-                             
-                                <div>
-                                  <input
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={(e) => {
-                                      const updatedSignerNames = [...signerNames];
-                                      updatedSignerNames[index] = {
-                                        ...updatedSignerNames[index],
-                                        signatureImage: e.target.files[0],
-                                      };
-                                      setSignerNames(updatedSignerNames);
-                                    }}
-                                  />
-                                  <Button
-                                    variant="contained"
-                                    color="secondary"
-                                    onClick={() =>
-                                      handlePdfSignWithImage(item.id, index)
-                                    }
-                                    disabled={signing}
-                                  >
-                                    {signing ? "Signing..." : "Sign PDF with Image"}
-                                  </Button>
-                                </div>
+
+
+
+                              <div>
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  onChange={(e) => {
+                                    const updatedSignerNames = [...signerNames];
+                                    updatedSignerNames[index] = {
+                                      ...updatedSignerNames[index],
+                                      signatureImage: e.target.files[0],
+                                    };
+                                    setSignerNames(updatedSignerNames);
+                                  }}
+                                />
+                                <Button
+                                  variant="contained"
+                                  color="secondary"
+                                  onClick={() =>
+                                    handlePdfSignWithImage(item.id, index)
+                                  }
+                                  disabled={signing}
+                                >
+                                  {signing ? "Signing..." : "Sign PDF with Image"}
+                                </Button>
+                              </div>
                             ) : (
                               <div>
                                 <TextField
