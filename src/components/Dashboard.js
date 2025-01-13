@@ -53,7 +53,7 @@ const Dashboard = () => {
           return;
         }
 
-        const response = await axios.get("http://localhost:5000/api/files/documents", {
+        const response = await axios.get("https://easy-sign-backend.vercel.app/api/files/documents", {
           headers: {
             Authorization: `Bearer ${token}`,  // Add token to Authorization header
           },
@@ -106,7 +106,7 @@ const Dashboard = () => {
   //     formData.append("fileId", fileId);
   //     formData.append("position", JSON.stringify(position));
 
-  //     const response = await axios.post("http://localhost:5000/api/files/sign-pdf-with-image", formData, {
+  //     const response = await axios.post("https://easy-sign-backend.vercel.app/api/files/sign-pdf-with-image", formData, {
   //       headers: {
   //         "Authorization": `Bearer ${token}`,
   //         "Content-Type": "multipart/form-data",
@@ -162,7 +162,7 @@ const Dashboard = () => {
         return;
       }
 
-      const response = await axios.post("http://localhost:5000/api/files/upload", formData, {
+      const response = await axios.post("https://easy-sign-backend.vercel.app/api/files/upload", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${token}`,  // Add token to Authorization header
@@ -205,7 +205,7 @@ const Dashboard = () => {
         return;
       }
 
-      const response = await axios.post("http://localhost:5000/api/files/sign-pdf", {
+      const response = await axios.post("https://easy-sign-backend.vercel.app/api/files/sign-pdf", {
         fileId,
         signerName: signerNames[index],
       }, {
@@ -293,7 +293,7 @@ const Dashboard = () => {
       }
 
       const response = await axios.post(
-        "http://localhost:5000/api/files/sign-pdf-with-image",
+        "https://easy-sign-backend.vercel.app/api/files/sign-pdf-with-image",
         formData,
         {
           headers: {
