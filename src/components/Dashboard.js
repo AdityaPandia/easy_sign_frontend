@@ -32,12 +32,12 @@ const Dashboard = () => {
   const [signedFileUrl, setSignedFileUrl] = useState("");
 
 
-  const [signaturePosition, setSignaturePosition] = useState({ x: 100, y: 150 });
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  // const [signaturePosition, setSignaturePosition] = useState({ x: 100, y: 150 });
+  // const [isDragging, setIsDragging] = useState(false);
+  // const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
 
   //new
-  const [signMode, setSignMode] = useState(new Array(unsignedDocuments.length).fill("text")); // Initialize with "text" mode
+  // const [signMode, setSignMode] = useState(new Array(unsignedDocuments.length).fill("text")); // Initialize with "text" mode
 
 
 
@@ -77,59 +77,59 @@ const Dashboard = () => {
 
 
   //new
-  const handleSignModeChange = (index) => {
-    const updatedSignMode = [...signMode];
-    updatedSignMode[index] = updatedSignMode[index] === "text" ? "image" : "text";
-    setSignMode(updatedSignMode);
-  };
-  const handleImageSign = async (fileId, index) => {
-    const signatureImage = document.getElementById(`signature-image-${index}`).files[0]; // Assuming you have a file input for image
-    const position = { x: 100, y: 200 }; // Set position dynamically or as needed
+  // const handleSignModeChange = (index) => {
+  //   const updatedSignMode = [...signMode];
+  //   updatedSignMode[index] = updatedSignMode[index] === "text" ? "image" : "text";
+  //   setSignMode(updatedSignMode);
+  // };
+  // const handleImageSign = async (fileId, index) => {
+  //   const signatureImage = document.getElementById(`signature-image-${index}`).files[0]; // Assuming you have a file input for image
+  //   const position = { x: 100, y: 200 }; // Set position dynamically or as needed
 
-    if (!signatureImage) {
-      setError("Please upload a signature image.");
-      return;
-    }
+  //   if (!signatureImage) {
+  //     setError("Please upload a signature image.");
+  //     return;
+  //   }
 
-    try {
-      setSigning(true);
-      setError("");
+  //   try {
+  //     setSigning(true);
+  //     setError("");
 
-      const token = localStorage.getItem('authToken');
-      if (!token) {
-        setError("User is not authenticated.");
-        return;
-      }
+  //     const token = localStorage.getItem('authToken');
+  //     if (!token) {
+  //       setError("User is not authenticated.");
+  //       return;
+  //     }
 
-      const formData = new FormData();
-      formData.append("signatureImage", signatureImage);
-      formData.append("fileId", fileId);
-      formData.append("position", JSON.stringify(position));
+  //     const formData = new FormData();
+  //     formData.append("signatureImage", signatureImage);
+  //     formData.append("fileId", fileId);
+  //     formData.append("position", JSON.stringify(position));
 
-      const response = await axios.post("https://easy-sign-backend.vercel.app/api/files/sign-pdf-with-image", formData, {
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
-        },
-      });
+  //     const response = await axios.post("https://easy-sign-backend.vercel.app/api/files/sign-pdf-with-image", formData, {
+  //       headers: {
+  //         "Authorization": `Bearer ${token}`,
+  //         "Content-Type": "multipart/form-data",
+  //       },
+  //     });
 
-      const signedDocument = {
-        ...unsignedDocuments[index],
-        signerName: signerNames[index], // Assuming signer name can still be added
-        signedFilePath: response.data.signedFilePath,
-      };
+  //     const signedDocument = {
+  //       ...unsignedDocuments[index],
+  //       signerName: signerNames[index], // Assuming signer name can still be added
+  //       signedFilePath: response.data.signedFilePath,
+  //     };
 
-      setSignedDocuments((prev) => [signedDocument, ...prev]);
-      setUnsignedDocuments((prev) => prev.filter((_, i) => i !== index));
-      setSignerNames((prev) => prev.filter((_, i) => i !== index));
-      setSignedFileUrl(response.data.signedFilePath);
-      setSigning(false);
-    } catch (err) {
-      setSigning(false);
-      console.error("Signing failed:", err.message);
-      setError("An error occurred while signing the PDF.");
-    }
-  };
+  //     setSignedDocuments((prev) => [signedDocument, ...prev]);
+  //     setUnsignedDocuments((prev) => prev.filter((_, i) => i !== index));
+  //     setSignerNames((prev) => prev.filter((_, i) => i !== index));
+  //     setSignedFileUrl(response.data.signedFilePath);
+  //     setSigning(false);
+  //   } catch (err) {
+  //     setSigning(false);
+  //     console.error("Signing failed:", err.message);
+  //     setError("An error occurred while signing the PDF.");
+  //   }
+  // };
   //new
 
 
@@ -236,30 +236,30 @@ const Dashboard = () => {
 
 
 
-  const onMouseDown = (e) => {
-    const canvas = e.target;
-    const rect = canvas.getBoundingClientRect();
-    setDragOffset({
-      x: e.clientX - rect.left - signaturePosition.x,
-      y: e.clientY - rect.top - signaturePosition.y,
-    });
-    setIsDragging(true);
-  };
+  // const onMouseDown = (e) => {
+  //   const canvas = e.target;
+  //   const rect = canvas.getBoundingClientRect();
+  //   setDragOffset({
+  //     x: e.clientX - rect.left - signaturePosition.x,
+  //     y: e.clientY - rect.top - signaturePosition.y,
+  //   });
+  //   setIsDragging(true);
+  // };
 
-  const onMouseMove = (e) => {
-    if (isDragging) {
-      const canvas = e.target;
-      const rect = canvas.getBoundingClientRect();
-      setSignaturePosition({
-        x: e.clientX - rect.left - dragOffset.x,
-        y: e.clientY - rect.top - dragOffset.y,
-      });
-    }
-  };
+  // const onMouseMove = (e) => {
+  //   if (isDragging) {
+  //     const canvas = e.target;
+  //     const rect = canvas.getBoundingClientRect();
+  //     setSignaturePosition({
+  //       x: e.clientX - rect.left - dragOffset.x,
+  //       y: e.clientY - rect.top - dragOffset.y,
+  //     });
+  //   }
+  // };
 
-  const onMouseUp = () => {
-    setIsDragging(false);
-  };
+  // const onMouseUp = () => {
+  //   setIsDragging(false);
+  // };
 
 
   const handlePdfSignWithImage = async (fileId, index) => {
@@ -273,10 +273,10 @@ const Dashboard = () => {
     const formData = new FormData();
     formData.append("fileId", fileId);
     formData.append("signatureImage", signatureImage);
-    // formData.append("x", 100); // Replace with your desired x-coordinate
-    // formData.append("y", 150); // Replace with your desired y-coordinate
-    formData.append('x', signaturePosition.x); // Use user-defined x-coordinate
-    formData.append('y', signaturePosition.y); //
+    formData.append("x", 10); // Replace with your desired x-coordinate
+    formData.append("y", 10); // Replace with your desired y-coordinate
+    // formData.append('x', signaturePosition.x); // Use user-defined x-coordinate
+    // formData.append('y', signaturePosition.y); //
     formData.append("width", 200); // Replace with your desired width
     formData.append("height", 100); // Replace with your desired height
 
@@ -324,16 +324,16 @@ const Dashboard = () => {
 
 
 
-  const handleDocxSign = async (fileId, index) => {
-    if (!signerNames[index]) {
-      setError("Signer name is required.");
-      return;
-    }
-    try {
-      // /uploads/1735105726686.docx
-    } catch (err) {
-    }
-  };
+  // const handleDocxSign = async (fileId, index) => {
+  //   if (!signerNames[index]) {
+  //     setError("Signer name is required.");
+  //     return;
+  //   }
+  //   try {
+  //     // /uploads/1735105726686.docx
+  //   } catch (err) {
+  //   }
+  // };
 
   return (
 
@@ -342,7 +342,7 @@ const Dashboard = () => {
       maxHeight: "100vh"
     }}>
       <Typography variant="h4" align="center" color="primary" gutterBottom>
-        Dashboard
+        Easy Sign - Dashboard
       </Typography>
 
       {/* Upload Section */}
@@ -643,58 +643,36 @@ const Dashboard = () => {
                             />
 
                             {signerNames[index]?.useImage ? (
+
+
+
+
+
+
                               <div>
-                                <div
-                                  style={{
-                                    width: '500px',
-                                    height: '700px',
-                                    border: '2px solid black',
-                                    position: 'relative',
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  onChange={(e) => {
+                                    const updatedSignerNames = [...signerNames];
+                                    updatedSignerNames[index] = {
+                                      ...updatedSignerNames[index],
+                                      signatureImage: e.target.files[0],
+                                    };
+                                    setSignerNames(updatedSignerNames);
                                   }}
-                                  onMouseMove={onMouseMove}
-                                  onMouseUp={onMouseUp}
-                                  onMouseLeave={onMouseUp}
-                                  onMouseDown={onMouseDown}
+                                />
+                                <Button
+                                  variant="contained"
+                                  color="secondary"
+                                  onClick={() =>
+                                    handlePdfSignWithImage(item.id, index)
+                                  }
+                                  disabled={signing}
                                 >
-                                  <img
-                                    src={signerNames[0]?.signatureImage}
-                                    alt="Signature"
-                                    style={{
-                                      position: 'absolute',
-                                      left: signaturePosition.x,
-                                      top: signaturePosition.y,
-                                      cursor: 'move',
-                                    }}
-                                  />
-                                </div>
-
-                                <div>
-
-                                </div>
-                                <div>
-                                  <input
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={(e) => {
-                                      const updatedSignerNames = [...signerNames];
-                                      updatedSignerNames[index] = {
-                                        ...updatedSignerNames[index],
-                                        signatureImage: e.target.files[0],
-                                      };
-                                      setSignerNames(updatedSignerNames);
-                                    }}
-                                  />
-                                  <Button
-                                    variant="contained"
-                                    color="secondary"
-                                    onClick={() =>
-                                      handlePdfSignWithImage(item.id, index)
-                                    }
-                                    disabled={signing}
-                                  >
-                                    {signing ? "Signing..." : "Sign PDF with Image"}
-                                  </Button>
-                                </div></div>
+                                  {signing ? "Signing..." : "Sign PDF with Image"}
+                                </Button>
+                              </div>
                             ) : (
                               <div>
                                 <TextField
